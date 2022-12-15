@@ -22,7 +22,6 @@ const DISLIKES_DATA = [
   { id: "4", title: "Raisins" },
   { id: "5", title: "Tofu" },
   { id: "6", title: "Anchovies" },
-  { id: "7", title: "Test" },
 ];
 export const selected_items_dislikes = [];
 
@@ -59,9 +58,42 @@ export default function Dislikes({ navigation }) {
     if (searchQuery.length > 0) {
       return (
         // Flat List Item
-        <Text style={styles.listStyle} onPress={() => getItem(item)}>
-          {item.title}
-        </Text>
+        <View style={styles.item}>
+        <TouchableOpacity
+        style={styles.preference}
+        onPress={() => {
+          //setIsSelected(!isSelected)
+          if (item.title == "None") {
+            navigation.navigate("HealthConditions");
+            return;
+          }
+          if (selected_items_dislikes.includes(item)) {
+            var index = selected_items_dislikes.indexOf(item);
+            selected_items_dislikes.splice(index, 1);
+            console.log(selected_items_dislikes);
+            DISLIKES_DATA.push(item);
+          } else {
+            selected_items_dislikes.push(item);
+            console.log(selected_items_dislikes);
+            // 4 lines added
+            var index = selected_items_dislikes.indexOf(item);
+            var index0 = DISLIKES_DATA.indexOf(item);
+            var index1 =filteredDataSource.indexOf(item);
+            DISLIKES_DATA.splice(index0, 1);
+            filteredDataSource.splice(index1, 1);
+          }
+
+          // BUG: need to remove item.id if its already selected before
+          setDislikes((prevDislikes) => [...prevDislikes, item.id]);
+          // BUG: need to change colour when selected
+        }}
+      > 
+        <Text style={styles.itemText}>{item.title}</Text>
+        
+      </TouchableOpacity>
+              
+     </View>
+       
       );
     } else {
       return <View></View>;
@@ -74,30 +106,6 @@ export default function Dislikes({ navigation }) {
     setSearchQuery("");
     // BUG: Need to hide flatlist everytime after an item is added.
   };
-  const AddedByYou = () => {
-    if (selected_items_dislikes.length >= 1) {
-      return (
-        <View>
-          <Text style={styles.text}>Added by you</Text>
-          <View>
-            <FlatList
-              data={selected_items_dislikes}
-              numColumns={2}
-              keyExtractor={item => item.id}
-              renderItem={({ item }) => (
-                <View style={styles.item}>
-                  <TouchableOpacity
-                    style={styles.preference}>
-                    <Text style={styles.itemText}>{item.title}</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            />
-          </View>
-        </View>
-      )
-    }
-  }
 
   //For troubleshooting
   //console.log(dislikes);
@@ -128,8 +136,20 @@ export default function Dislikes({ navigation }) {
           renderItem={ItemView}
         />
       </View>
+      <Text style={styles.text}>Added by you</Text>
       <View>
-        {AddedByYou()}
+        <FlatList
+          data={selected_items_dislikes}
+          numColumns={2}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <View style={styles.item}>
+              <TouchableOpacity style={styles.preference}>
+                <Text style={styles.itemText}>{item.title}</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        />
       </View>
       <Text style={styles.text}>Most Common</Text>
       <FlatList
@@ -142,10 +162,8 @@ export default function Dislikes({ navigation }) {
               style={styles.preference}
               onPress={() => {
                 // setIsSelected(!isSelected)
-                if(item.title=="None")
-                {
-                  navigation.navigate('HealthConditions');
-                  selected_items_dislikes.splice(0,selected_items_dislikes.length);
+                if (item.title == "None") {
+                  navigation.navigate("HealthConditions");
                   return;
                 }
                 if (selected_items_dislikes.includes(item)) {
@@ -155,6 +173,10 @@ export default function Dislikes({ navigation }) {
                 } else {
                   selected_items_dislikes.push(item);
                   console.log(selected_items_dislikes);
+                  // 4 lines added
+                  var index = selected_items_dislikes.indexOf(item);
+                  var index0 = DISLIKES_DATA.indexOf(item);
+                  DISLIKES_DATA.splice(index0, 1);
                 }
                 // BUG: need to remove item.id if its already selected before
                 setDislikes((prevDislikes) => [...prevDislikes, item.id]);
@@ -166,13 +188,54 @@ export default function Dislikes({ navigation }) {
           </View>
         )}
       />
-
-      <TouchableOpacity
+<View>
+          <FlatList
+            data={selected_items_dislikes}
+            numColumns={2}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.addeditem}>
+               <TouchableOpacity
+                 style={styles.preference}
+                 onPress={() => {
+                  //setIsSelected(!isSelected)
+                  if (item.title == "None") {
+                    navigation.navigate("HealthConditions");
+                    return;
+                  }
+                  if (selected_items_dislikes.includes(item)) {
+                    var index = selected_items_dislikes.indexOf(item);
+                    selected_items_dislikes.splice(index, 1);
+                    console.log(selected_items_dislikes);
+                    DISLIKES_DATA.push(item);
+                  } else {
+                    selected_items_dislikes.push(item);
+                    console.log(selected_items_dislikes);
+                    // 4 lines added
+                    var index = selected_items_dislikes.indexOf(item);
+                    var index0 = DISLIKES_DATA.indexOf(item);
+                    DISLIKES_DATA.splice(index0, 1);
+                  }
+  
+                  // BUG: need to remove item.id if its already selected before
+                  setDislikes((prevDislikes) => [...prevDislikes, item.id]);
+                  // BUG: need to change colour when selected
+                 }}
+                > 
+                 <Text style={styles.itemText}><Icon name="check" size={20} color="black"/>{item.title}</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          />
+          <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate("HealthConditions")}
       >
         <Text style={styles.buttonText}>Continue</Text>
       </TouchableOpacity>
+          </View>
+
+      
     </SafeAreaView>
   );
 }
@@ -216,6 +279,20 @@ const styles = StyleSheet.create({
   item: {
     marginTop: 10,
     // backgroundColor: 'green',
+    borderColor: "black",
+    borderWidth: 1,
+    maxWidth: SCREENWIDTH / 2 - 40,
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 10,
+    justifyContent: "space-around",
+    margin: 5,
+    flex: 0.5,
+    //backgroundColor: 'pink',
+  }, 
+  addeditem: {
+    marginTop: 10,
+    backgroundColor: 'lavender',
     borderColor: "black",
     borderWidth: 1,
     maxWidth: SCREENWIDTH / 2 - 40,
